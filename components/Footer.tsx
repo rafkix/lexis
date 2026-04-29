@@ -141,8 +141,8 @@ export default function Footer() {
 
           {/* SOCIAL / EXTRA */}
           <div className="flex gap-4 text-sm text-white/60">
-            <Link href="#" className="hover:text-white">Telegram</Link>
-            <Link href="#" className="hover:text-white">Instagram</Link>
+            <Link href="https://t.me/lexis_uz" className="hover:text-white">Telegram</Link>
+            <Link href="https://instagram.com/lexis_uz" className="hover:text-white">Instagram</Link>
             <Link href="#" className="hover:text-white">YouTube</Link>
           </div>
 
