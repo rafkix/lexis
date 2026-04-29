@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refresh = useCallback(async () => {
     const { access } = tokenStore.get()
-    const PUBLIC_ROUTES = ['/', '/login', '/register', '/forgot-password', '/about', '/pricing', '/contact', '/careers']
+    const PUBLIC_ROUTES = ['/', '/login', '/register', '/forgot-password', '/about', '/pricing', '/contact', '/careers', '/reset-password']
     // refresh() ichida:
     if (!access) {
       setUser(null)

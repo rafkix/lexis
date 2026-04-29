@@ -299,9 +299,9 @@ export default function ProfilePage() {
                     {/* layered bg */}
                     <div className="absolute inset-0 bg-[#080614]" />
                     <div className="absolute inset-0"
-                        style={{ background: 'radial-gradient(ellipse 100% 80% at 70% -20%, rgba(139,92,246,0.22), transparent 60%)' }} />
+                        style={{ background: 'radial-gradient(ellipse 100% 80% at 70% -20%, rgba(95, 26, 255, 0.22), transparent 60%)' }} />
                     <div className="absolute inset-0"
-                        style={{ background: 'radial-gradient(ellipse 60% 40% at 0% 100%, rgba(99,102,241,0.1), transparent 50%)' }} />
+                        style={{ background: 'radial-gradient(ellipse 60% 40% at 0% 100%, rgba(14, 18, 221, 0.1), transparent 50%)' }} />
                     <HeroPattern />
 
                     {/* floating orbs */}
@@ -318,7 +318,7 @@ export default function ProfilePage() {
                                 <h1 className={`text-[30px] font-black tracking-tight leading-none ${mounted ? 'shimmer-text' : 'text-white'}`}>
                                     {user.full_name || 'No name'}
                                 </h1>
-                                <p className="text-indigo-400/40 text-[13px] mt-1.5 tracking-wide font-medium">
+                                <p className="text-white text-[13px] mt-1.5 tracking-wide font-medium">
                                     @{user.username} · {user.email}
                                 </p>
 
