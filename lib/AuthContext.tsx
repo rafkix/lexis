@@ -1,156 +1,110 @@
-"use client"
+'use client'
 
-import { createContext, useContext, useEffect, useState } from "react"
-import { authService } from "@/lib/api/auth"
-import { useRouter } from "next/navigation"
-import type { UserMeResponse, AuthResponse } from "@/lib/types/auth"
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  ReactNode,
+} from 'react'
+import { useRouter } from 'next/navigation'
+import { authApi, MeResponse } from '@/lib/api/auth'
+import { tokenStore } from '@/lib/api/client'
 
-interface AuthContextType {
-  user: UserMeResponse | null
+// =====================================================
+// TYPES
+// =====================================================
+
+type AuthState = {
+  user: MeResponse | null
   loading: boolean
-
-  googleLogin: (token: string) => Promise<AuthResponse>
-  telegramLogin: (data: any) => Promise<AuthResponse>
-  linkAccount: (payload: any) => Promise<void>
-
-  logout: () => void
-  refreshUser: () => Promise<void>
+  isAuthenticated: boolean
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+type AuthContextValue = AuthState & {
+  refresh: () => Promise<void>
+  logout: () => Promise<void>
+}
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<UserMeResponse | null>(null)
+// =====================================================
+// CONTEXT
+// =====================================================
+
+const AuthContext = createContext<AuthContextValue | null>(null)
+
+// =====================================================
+// PROVIDER
+// =====================================================
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<MeResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
-  // =========================
-  // INIT
-  // =========================
-  useEffect(() => {
-    const initAuth = async () => {
-      const token =
-        typeof window !== "undefined"
-          ? localStorage.getItem("access_token")
-          : null
+  const refresh = useCallback(async () => {
+    const { access } = tokenStore.get()
+    const PUBLIC_ROUTES = ['/', '/login', '/register', '/forgot-password', '/about', '/pricing']
+    // refresh() ichida:
+    if (!access) {
+      setUser(null)
+      setLoading(false)
 
-      if (!token) {
-        setLoading(false)
-        return
+      if (typeof window !== 'undefined') {
+        const pathname = window.location.pathname
+
+        // ✅ Public route bo'lsa redirect qilma
+        const isPublic = PUBLIC_ROUTES.some(route => pathname === route || pathname.startsWith(route + '/'))
+        if (!isPublic) {
+          sessionStorage.setItem('redirect_after_login', pathname + window.location.search)
+          router.replace('/login')
+        }
       }
 
-      try {
-        const userData = await authService.getMe()
-        setUser(userData)
-      } catch (error) {
-        console.error("Auth Init Failed:", error)
-        localStorage.removeItem("access_token")
-      } finally {
-        setLoading(false)
-      }
+      return
     }
 
-    initAuth()
-  }, [])
-
-  // =========================
-  // 🔐 GOOGLE LOGIN
-  // =========================
-  const googleLogin = async (token: string) => {
-    setLoading(true)
-
     try {
-      const res = await authService.googleLogin({ token })
-
-      if (res.status === "success") {
-        const userData = await authService.getMe()
-        setUser(userData)
-        router.push("/")
-      }
-
-      return res
+      const me = await authApi.me()
+      setUser(me)
+    } catch {
+      setUser(null)
+      tokenStore.clear()
     } finally {
       setLoading(false)
     }
-  }
+  }, [router])
 
-  // =========================
-  // 🔐 TELEGRAM LOGIN
-  // =========================
-  const telegramLogin = async (data: any) => {
-    setLoading(true)
-
-    try {
-      const res = await authService.telegramLogin({ data })
-
-      if (res.status === "success") {
-        const userData = await authService.getMe()
-        setUser(userData)
-        router.push("/")
-      }
-
-      return res
-    } finally {
-      setLoading(false)
+  // FIX: logout tokenni tozalab redirect qiladi
+  const logout = useCallback(async () => {
+    const { refresh: refreshToken } = tokenStore.get()
+    if (refreshToken) {
+      await authApi.logout(refreshToken).catch(() => { })
     }
-  }
-
-  // =========================
-  // 🔗 LINK ACCOUNT
-  // =========================
-  const linkAccount = async (payload: any) => {
-    await authService.linkAccount(payload)
-
-    // 🔥 userni yangilaymiz
-    await refreshUser()
-  }
-
-  // =========================
-  // 🚪 LOGOUT
-  // =========================
-  const logout = () => {
-    authService.logout()
+    tokenStore.clear()
     setUser(null)
-    router.push("/auth")
-  }
+    router.replace('/login')
+  }, [router])
 
-  // =========================
-  // 🔄 REFRESH USER
-  // =========================
-  const refreshUser = async () => {
-    const token = localStorage.getItem("access_token")
-    if (!token) return
-
-    try {
-      const userData = await authService.getMe()
-      setUser(userData)
-    } catch (error) {
-      console.error("User refresh failed", error)
-    }
-  }
+  useEffect(() => {
+    refresh()
+  }, [refresh])
 
   return (
     <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        googleLogin,
-        telegramLogin,
-        linkAccount,
-        logout,
-        refreshUser,
-      }}
+      value={{ user, loading, isAuthenticated: !!user, refresh, logout }}
     >
       {children}
     </AuthContext.Provider>
   )
 }
 
-// =========================
+// =====================================================
 // HOOK
-// =========================
-export const useAuth = () => {
-  const context = useContext(AuthContext)
-  if (!context) throw new Error("useAuth must be used within AuthProvider")
-  return context
+// =====================================================
+
+export function useAuth(): AuthContextValue {
+  const ctx = useContext(AuthContext)
+  if (!ctx) throw new Error('useAuth must be used inside <AuthProvider>')
+  return ctx
 }

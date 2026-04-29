@@ -1,91 +1,91 @@
-import type { Metadata } from 'next'
-import { Geist } from 'next/font/google'
-import { Analytics } from '@vercel/analytics/next'
-import { SessionProvider } from 'next-auth/react'
-import { AuthProvider } from '@/lib/AuthContext'
-import './globals.css'
+import type { Metadata } from "next"
+import { Geist } from "next/font/google"
+import { Analytics } from "@vercel/analytics/next"
+import Script from "next/script"
 
-const geist = Geist({ subsets: ['latin'] })
+import { AuthProvider } from "@/lib/AuthContext"
+import "./globals.css"
+
+const geist = Geist({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://lexis.uz'),
+  metadataBase: new URL("https://lexis.uz"),
 
   title: {
-    default: 'Lexis — AI English Speaking Practice',
-    template: '%s | Lexis',
+    default: "Lexis — IELTS & CEFR Practice Tests with AI Speaking Feedback",
+    template: "%s | Lexis",
   },
 
   description:
-    'Practice IELTS & CEFR speaking with AI. Get real-time feedback, band score estimation, and unlimited speaking sessions.',
+    "Practice IELTS Reading, Listening, and Speaking with real exam simulations. Get instant scoring and AI-powered feedback for IELTS & CEFR.",
 
   keywords: [
-    'IELTS speaking',
-    'CEFR',
-    'English speaking practice',
-    'AI English tutor',
-    'IELTS AI',
-    'learn English online',
-    'speaking simulator',
+    "IELTS practice",
+    "CEFR test",
+    "IELTS speaking AI",
+    "IELTS mock test",
+    "English learning platform",
+    "IELTS Uzbekistan",
+    "CEFR practice online",
   ],
 
-  authors: [{ name: 'Lexis Team', url: 'https://lexis.uz' }],
-  creator: 'Lexis',
-  publisher: 'Lexis',
+  authors: [{ name: "Lexis Team", url: "https://lexis.uz" }],
+  creator: "Lexis",
+  publisher: "Lexis",
 
-  applicationName: 'Lexis',
+  alternates: {
+    canonical: "https://lexis.uz",
+  },
 
   openGraph: {
-    title: 'Lexis — AI English Speaking Practice',
+    title: "Lexis — IELTS & CEFR Practice with AI Feedback",
     description:
-      'Improve your IELTS speaking with AI feedback and real exam simulation.',
-    url: 'https://lexis.uz',
-    siteName: 'Lexis',
+      "Train for IELTS & CEFR with real exam formats and AI-powered speaking evaluation.",
+    url: "https://lexis.uz",
+    siteName: "Lexis",
     images: [
       {
-        url: '/og-image.png', // 👉 qo‘ygan bo‘lishing kerak
+        url: "/og-image.png", // public ichida bo'lishi kerak
         width: 1200,
         height: 630,
-        alt: 'Lexis AI Speaking Platform',
+        alt: "Lexis IELTS Platform",
       },
     ],
-    locale: 'en_US',
-    type: 'website',
+    locale: "en_US",
+    type: "website",
   },
 
   twitter: {
-    card: 'summary_large_image',
-    title: 'Lexis — AI Speaking Practice',
+    card: "summary_large_image",
+    title: "Lexis — IELTS Practice Platform",
     description:
-      'Train IELTS speaking with AI. Real feedback. Real progress.',
-    images: ['/og-image.png'],
+      "Practice IELTS with AI feedback and real exam simulations.",
+    images: ["/og-image.png"],
+    creator: "@lexis", // bo‘lmasa olib tashla
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-snippet": -1,
+      "max-image-preview": "large",
+      "max-video-preview": -1,
+    },
   },
 
   icons: {
     icon: [
-      { url: '/favicon.ico' },
-      { url: '/icon-32x32.png', sizes: '32x32', type: 'image/png' },
-      { url: '/icon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: "/favicon.ico" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
     ],
-    apple: [
-      { url: '/apple-touch-icon.png', sizes: '180x180' },
-    ],
-    shortcut: ['/favicon.ico'],
+    apple: "/apple-touch-icon.png",
   },
 
-  manifest: '/site.webmanifest',
-
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#0a0a0a' },
-  ],
-
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-  },
-
-  category: 'education',
+  manifest: "/site.webmanifest",
 }
 
 export default function RootLayout({
@@ -94,23 +94,13 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="bg-background scroll-smooth">
-      <body className={`${geist.className} antialiased`}>
+    <html lang="en">
+      <body className={geist.className}>
+        <AuthProvider>
+          {children}
+        </AuthProvider>
 
-        {/* GOOGLE */}
-        <script
-          src="https://accounts.google.com/gsi/client"
-          async
-          defer
-        />
-
-        <SessionProvider>
-          <AuthProvider>
-            {children}
-          </AuthProvider>
-        </SessionProvider>
-
-        {process.env.NODE_ENV === 'production' && <Analytics />}
+        {process.env.NODE_ENV === "production" && <Analytics />}
       </body>
     </html>
   )

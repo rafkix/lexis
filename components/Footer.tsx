@@ -17,18 +17,18 @@ export default function Footer() {
           {/* BRAND */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <Mic className="w-5 h-5 text-red-500" />
+              <Mic className="w-5 h-5 text-indigo-500" />
               <span className="text-xl font-bold">Lexis.uz</span>
             </div>
 
             <p className="text-sm text-white/70 mb-6">
-              AI-powered English speaking platform for IELTS & CEFR success.
+              AI-poweindigo English speaking platform for IELTS & CEFR success.
             </p>
 
             {/* MINI CTA */}
             <Link
               href="/practice"
-              className="inline-block text-sm bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg font-medium transition"
+              className="inline-block text-sm bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg font-medium transition"
             >
               Start Practicing →
             </Link>
